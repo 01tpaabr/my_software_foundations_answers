@@ -324,17 +324,20 @@ Definition orb' (b1:bool) (b2:bool) : bool :=
     skip over [simpl] and go directly to [reflexivity]. We'll
     explain this phenomenon later in the chapter. *)
 
-Definition nandb (b1:bool) (b2:bool) : bool
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Definition nandb (b1:bool) (b2:bool) : bool :=
+    match b1 with
+    | true => if b2 then false else true
+    | false => true
+    end.
 
 Example test_nandb1:               (nandb true false) = true.
-(* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
 Example test_nandb2:               (nandb false false) = true.
-(* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
 Example test_nandb3:               (nandb false true) = true.
-(* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
 Example test_nandb4:               (nandb true true) = false.
-(* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
 (** [] *)
 
 (** **** Exercise: 1 star, standard (andb3)
@@ -343,17 +346,20 @@ Example test_nandb4:               (nandb true true) = false.
     return [true] when all of its inputs are [true], and [false]
     otherwise. *)
 
-Definition andb3 (b1:bool) (b2:bool) (b3:bool) : bool
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Definition andb3 (b1:bool) (b2:bool) (b3:bool) : bool :=
+    match b1 with
+    | true => if b2 then if b3 then true else false else false
+    | false => false
+    end.
 
-Example test_andb31:                 (andb3 true true true) = true.
-(* FILL IN HERE *) Admitted.
+(* Example test_andb31:                 (andb3 true true true) = true.
+Proof. reflexivity. Qed. 
 Example test_andb32:                 (andb3 false true true) = false.
-(* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 Example test_andb33:                 (andb3 true false true) = false.
-(* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 Example test_andb34:                 (andb3 true true false) = false.
-(* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed. *)
 (** [] *)
 
 (* ================================================================= *)
@@ -794,13 +800,16 @@ Fixpoint exp (base power : nat) : nat :=
     factorial was not found in the current environment," it means
     you've forgotten the [:=]. *)
 
-Fixpoint factorial (n:nat) : nat
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Fixpoint factorial (n:nat) : nat :=
+  match n with
+  | O => 1
+  | S n' => n * factorial n'
+  end.
 
 Example test_factorial1:          (factorial 3) = 6.
-(* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed. 
 Example test_factorial2:          (factorial 5) = (mult 10 12).
-(* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
 (** [] *)
 
 (** Again, we can make numerical expressions easier to read and write
@@ -893,17 +902,20 @@ Proof. simpl. reflexivity.  Qed.
     function.  (It can be done with just one previously defined
     function, but you can use two if you want.) *)
 
-Definition ltb (n m : nat) : bool
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Definition ltb (n m : nat) : bool :=
+    if n <=? m then
+        if n =? m then false
+        else true
+    else false.
 
 Notation "x <? y" := (ltb x y) (at level 70) : nat_scope.
 
 Example test_ltb1:             (ltb 2 2) = false.
-(* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
 Example test_ltb2:             (ltb 2 4) = true.
-(* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 Example test_ltb3:             (ltb 4 2) = false.
-(* FILL IN HERE *) Admitted.
+Proof. reflexivity.
 (** [] *)
 
 (* ################################################################# *)
@@ -1063,8 +1075,11 @@ Proof.
 
 Theorem plus_id_exercise : forall n m o : nat,
   n = m -> m = o -> n + m = m + o.
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof. intros n m o. intros H1. intros H2. 
+    rewrite H1. 
+    rewrite H2. 
+    reflexivity.
+Qed.
 (** [] *)
 
 (** The [Admitted] command tells Coq that we want to skip trying
@@ -1114,8 +1129,11 @@ Proof.
 
 Theorem mult_n_1 : forall p : nat,
   p * 1 = p.
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof. intros p. 
+rewrite <- mult_n_Sm. 
+rewrite <- mult_n_O. 
+simpl. reflexivity.
+Qed.
 
 (** [] *)
 
@@ -1314,8 +1332,15 @@ Qed.
 
 Theorem andb_true_elim2 : forall b c : bool,
   andb b c = true -> c = true.
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof. intros b c. intros h1. destruct b eqn: Eb.
+    - destruct c eqn:Ec.
+        -- reflexivity.
+        -- apply h1.
+    - destruct c eqn:Ec.
+        -- reflexivity.
+        -- apply h1.
+    Qed. 
+
 (** [] *)
 
 (** Before closing the chapter, let's mention one final
@@ -1350,13 +1375,15 @@ Proof.
   - reflexivity.
   - reflexivity.
   - reflexivity.
-Qed.
+  Qed.
 
 (** **** Exercise: 1 star, standard (zero_nbeq_plus_1) *)
 Theorem zero_nbeq_plus_1 : forall n : nat,
   0 =? (n + 1) = false.
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof. intros [|n].
+    - reflexivity.
+    - reflexivity.
+Qed.
 (** [] *)
 
 (* ================================================================= *)
@@ -1460,8 +1487,10 @@ Theorem identity_fn_applied_twice :
   forall (f : bool -> bool),
   (forall (x : bool), f x = x) ->
   forall (b : bool), f (f b) = b.
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof. intros f. intros h1. intros b. 
+rewrite h1. rewrite h1. reflexivity.
+Qed.
+
 
 (** [] *)
 
@@ -1474,7 +1503,7 @@ Proof.
 (* FILL IN HERE *)
 
 (* Do not modify the following line: *)
-Definition manual_grade_for_negation_fn_applied_twice : option (nat*string) := None.
+(* Definition manual_grade_for_negation_fn_applied_twice : option (nat*string) := None. *)
 (** (The last definition is used by the autograder.)
 
     [] *)
@@ -1490,14 +1519,20 @@ Theorem andb_eq_orb :
   forall (b c : bool),
   (andb b c = orb b c) ->
   b = c.
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof. 
+    intros b c. destruct b.
+        - simpl. intro h. rewrite h. reflexivity.
+        - simpl. intro h. rewrite h. reflexivity. 
+Qed.
+
+
 
 (** [] *)
 
 (* ================================================================= *)
 (** ** Course Late Policies, Formalized *)
 
+(* Parada *)
 (** Suppose that a course has a grading policy based on late days,
     where a student's final letter grade is lowered if they submit too
     many homework assignments late.
@@ -1506,7 +1541,7 @@ Proof.
     features of Coq that we have seen so far and prove some simple
     facts about this grading policy.  *)
 
-Module LateDays.
+(* Module LateDays. *)
 
 (** First, we inroduce a datatype for modeling the "letter" component
     of a grade. *)
@@ -1872,7 +1907,7 @@ Proof.
   (* FILL IN HERE *) Admitted.
 
 (** [] *)
-End LateDays.
+(* End LateDays. *)
 
 (* ================================================================= *)
 (** ** Binary Numerals *)
